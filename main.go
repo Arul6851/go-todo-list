@@ -9,14 +9,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Todo struct {
-	ID        int    `json:"id" bson:"_id"`
-	Completed bool   `json:"completed"`
-	Body      string `json:"body"`
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Completed bool               `json:"completed"`
+	Body      string             `json:"body"`
 }
 
 var collection *mongo.Collection
@@ -50,7 +51,8 @@ func main() {
 	PORT := os.Getenv("PORT")
 
 	app := fiber.New()
-	app.Get("/api/todos", getTodos)
+	app.Get("/", getTodos)
+	app.Post("/", createTodo)
 
 	log.Fatal(app.Listen("0.0.0.0:" + PORT))
 }
@@ -73,4 +75,27 @@ func getTodos(c *fiber.Ctx) error {
 		todos = append(todos, todo)
 	}
 	return c.Status(200).JSON(todos)
+}
+
+func createTodo(c *fiber.Ctx) error {
+	todo := new(Todo)
+
+	if err := c.BodyParser(todo); err != nil {
+		return err
+	}
+
+	if todo.Body == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Body is required",
+		})
+	}
+
+	result, err := collection.InsertOne(context.Background(), todo)
+	if err != nil {
+		return err
+	}
+
+	todo.ID = result.InsertedID.(primitive.ObjectID)
+
+	return c.Status(201).JSON(todo)
 }
