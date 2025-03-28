@@ -48,10 +48,11 @@ func main() {
 	collection = client.Database("golang_db").Collection("todos")
 
 	PORT := os.Getenv("PORT")
-	app := fiber.New()
-	app.Listen("0.0.0.0:" + PORT)
 
+	app := fiber.New()
 	app.Get("/api/todos", getTodos)
+
+	log.Fatal(app.Listen("0.0.0.0:" + PORT))
 }
 
 func getTodos(c *fiber.Ctx) error {
@@ -59,7 +60,7 @@ func getTodos(c *fiber.Ctx) error {
 
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	defer cursor.Close(context.Background())
