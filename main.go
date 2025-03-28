@@ -54,6 +54,7 @@ func main() {
 	app.Get("/", getTodos)
 	app.Post("/", createTodo)
 	app.Patch("/:id", updateTodo)
+	app.Delete("/:id", deleteTodo)
 
 	log.Fatal(app.Listen("0.0.0.0:" + PORT))
 }
@@ -121,4 +122,24 @@ func updateTodo(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Todo updated successfully"})
+}
+
+func deleteTodo(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Invalid ID",
+		})
+	}
+
+	filter := bson.M{"_id": objectID}
+
+	_, err = collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+
+	return c.SendStatus(204)
 }
