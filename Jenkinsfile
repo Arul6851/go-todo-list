@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     sh "docker rm -f sample-app || true"
-                    dockerImage.run("-d -p 8081:8081 --name sample-app -–env-file .env ")
+                    dockerImage.run("-d -p '8081:8081' --name 'sample-app' -–env-file '.env' ")
                 }
             }
         }
