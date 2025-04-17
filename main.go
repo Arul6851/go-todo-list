@@ -52,6 +52,7 @@ func main() {
 
 	app := fiber.New()
 	app.Get("/", getTodos)
+	app.Get("/:id", getTodosByID)
 	app.Post("/", createTodo)
 	app.Patch("/:id", updateTodo)
 	app.Delete("/:id", deleteTodo)
@@ -77,6 +78,27 @@ func getTodos(c *fiber.Ctx) error {
 		todos = append(todos, todo)
 	}
 	return c.Status(200).JSON(todos)
+}
+
+func getTodosByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Invalid ID",
+		})
+	}
+
+	var todo Todo
+	err = collection.FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&todo)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"error": "Todo not found",
+		})
+	}
+
+	return c.Status(200).JSON(todo)
 }
 
 func createTodo(c *fiber.Ctx) error {
