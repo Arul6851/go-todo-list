@@ -6,7 +6,7 @@ node_modules
 *.o
 *.a
 *.so
-
+*.sum
 .env
 
 # Folders
