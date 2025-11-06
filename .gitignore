@@ -7,7 +7,7 @@ node_modules
 *.a
 *.so
 *.sum
-.env
+*.env
 
 # Folders
 _obj
