@@ -15,7 +15,7 @@ const TodoForm = () => {
     mutationFn: async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-        const res = await fetch(BASE_URL + `/todos`, {
+        const res = await fetch(BASE_URL + `/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
