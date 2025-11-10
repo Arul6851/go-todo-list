@@ -1,12 +1,5 @@
-import {
-  Box,
-  Flex,
-  Button,
-  useColorModeValue,
-  useColorMode,
-  Text,
-  Container,
-} from "@chakra-ui/react";
+import { Box, Flex, Button, Text, Container } from "@chakra-ui/react";
+import { useColorMode, useColorModeValue } from "./ui/color-mode";
 import { IoMoon } from "react-icons/io5";
 import { LuSun } from "react-icons/lu";
 
@@ -35,7 +28,6 @@ export default function Navbar() {
             <Text fontSize={"40"}>=</Text>
             <img src="/explode.png" alt="logo" width={50} height={50} />
           </Flex>
-
           {/* RIGHT SIDE */}
           <Flex alignItems={"center"} gap={3}>
             <Text fontSize={"lg"} fontWeight={500}>
