@@ -3,7 +3,7 @@ import cors from "cors";
 import bodyparser from "body-parser";
 import { config } from "dotenv";
 import prisma from "./middlewares/prisma";
-
+import todosRouter from "./routers/todos.route";
 class App {
   express: Express;
 
@@ -60,92 +60,7 @@ class App {
         res.status(500).json({ error: "Failed to fetch todos" });
       }
     });
-
-    // Get todo by ID
-    this.express.get("/api/todoss/:id", async (req: Request, res: Response) => {
-      try {
-        const { id } = req.params;
-
-        const todo = await prisma.todos.findUnique({
-          where: { id },
-        });
-
-        if (!todo) {
-          return res.status(404).json({ error: "Todo not found" });
-        }
-
-        res.status(200).json(todo);
-      } catch (error) {
-        console.error("Error fetching todo:", error);
-        res.status(500).json({ error: "Failed to fetch todo" });
-      }
-    });
-
-    // Create todo
-    this.express.post("/api/todos", async (req: Request, res: Response) => {
-      try {
-        const { body } = req.body;
-
-        if (!body || body.trim() === "") {
-          return res.status(400).json({ error: "Body is required" });
-        }
-
-        const todo = await prisma.todos.create({
-          data: {
-            body,
-            completed: false,
-          },
-        });
-
-        res.status(201).json(todo);
-      } catch (error) {
-        console.error("Error creating todo:", error);
-        res.status(500).json({ error: "Failed to create todo" });
-      }
-    });
-
-    // Update todo (toggle completed)
-    this.express.patch(
-      "/api/todos/:id",
-      async (req: Request, res: Response) => {
-        try {
-          const { id } = req.params;
-          const { completed } = req.body;
-
-          // If completed is provided in body, use it; otherwise toggle to true
-          const todo = await prisma.todos.update({
-            where: { id },
-            data: {
-              completed: completed !== undefined ? completed : true,
-            },
-          });
-
-          res.status(200).json({ message: "Todo updated successfully", todo });
-        } catch (error) {
-          console.error("Error updating todo:", error);
-          res.status(404).json({ error: "Todo not found" });
-        }
-      }
-    );
-
-    // Delete todo
-    this.express.delete(
-      "/api/todos/:id",
-      async (req: Request, res: Response) => {
-        try {
-          const { id } = req.params;
-
-          await prisma.todos.delete({
-            where: { id },
-          });
-
-          res.status(204).send();
-        } catch (error) {
-          console.error("Error deleting todo:", error);
-          res.status(404).json({ error: "Todo not found" });
-        }
-      }
-    );
+    this.express.use("/api/todos", todosRouter);
   }
 }
 
